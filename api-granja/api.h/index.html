@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de la Granja</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 0;
+      background: #f0f4f8;
+    }
+    header {
+      background-color: #4CAF50;
+      color: white;
+      padding: 1rem;
+      text-align: center;
+    }
+    nav {
+      display: flex;
+      gap: 10px;
+      justify-content: center;
+      background: #e8f5e9;
+      padding: 10px;
+    }
+    nav button {
+      padding: 10px 20px;
+      border: none;
+      background: #388e3c;
+      color: white;
+      cursor: pointer;
+      border-radius: 5px;
+    }
+    nav button:hover {
+      background: #2e7d32;
+    }
+    table {
+      width: 90%;
+      margin: 20px auto;
+      border-collapse: collapse;
+      background: white;
+    }
+    th, td {
+      border: 1px solid #ccc;
+      padding: 10px;
+      text-align: left;
+    }
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Panel de Administración de la Granja</h1>
+  </header>
+
+  <nav>
+    <button onclick="cargarDatos('animales')">Animales</button>
+    <button onclick="cargarDatos('plantas')">Plantas</button>
+    <button onclick="cargarDatos('usuarios')">Usuarios</button>
+    <button onclick="cargarDatos('productos')">Productos</button>
+    <button onclick="cargarDatos('reportes')">Reportes</button>
+    <button onclick="cargarDatos('tratamientos')">Tratamientos</button>
+  </nav>
+
+  <table id="tablaDatos">
+    <thead id="encabezadoTabla"></thead>
+    <tbody id="cuerpoTabla"></tbody>
+  </table>
+
+  <script>
+    async function cargarDatos(ruta) {
+      const encabezado = document.getElementById('encabezadoTabla');
+      const cuerpo = document.getElementById('cuerpoTabla');
+      encabezado.innerHTML = '';
+      cuerpo.innerHTML = '';
+      try {
+        const respuesta = await fetch(`http://localhost:3000/api/${ruta}`);
+        const datos = await respuesta.json();
+
+        if (datos.length === 0) {
+          cuerpo.innerHTML = '<tr><td colspan="10">No hay datos disponibles.</td></tr>';
+          return;
+        }
+
+        // Encabezados
+        const headers = Object.keys(datos[0]);
+        encabezado.innerHTML = '<tr>' + headers.map(h => `<th>${h}</th>`).join('') + '</tr>';
+
+        // Cuerpo
+        datos.forEach(fila => {
+          const htmlFila = '<tr>' + headers.map(h => `<td>${fila[h]}</td>`).join('') + '</tr>';
+          cuerpo.innerHTML += htmlFila;
+        });
+      } catch (error) {
+        cuerpo.innerHTML = `<tr><td colspan="10">Error al cargar datos: ${error}</td></tr>`;
+      }
+    }
+  </script>
+</body>
+</html>
